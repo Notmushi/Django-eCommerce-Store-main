@@ -1,0 +1,296 @@
+====================================================================
+                     M SHOP — REFERENCE GUIDE
+====================================================================
+
+1. ADMIN PANEL ACCESS
+2. HOW TO ADD PRODUCTS (ADMIN)
+3. HOW TO TRACK ORDERS/SALES (ADMIN)
+4. PROJECT STRUCTURE — WHAT DATA EACH APP STORES
+5. HOW TO EDIT THE HOME PAGE
+6. HOW TO EDIT THE PRODUCTS PAGE
+7. HOW TO EDIT A PRODUCT DETAIL PAGE
+8. HOW TO EDIT THE NAVBAR / FOOTER
+9. HOW TO ADD NEW PAGES
+10. COMMON FILE LOCATIONS QUICK REFERENCE
+
+====================================================================
+1. ADMIN PANEL ACCESS
+====================================================================
+
+URL: http://127.0.0.1:8000/admin/
+
+Step 1: Create a superuser (if not already done):
+  python manage.py createsuperuser
+  -> Enter username, email, password
+
+Step 2: Go to http://127.0.0.1:8000/admin/ and log in.
+
+Step 3: You will see these sections:
+  - Accounts (Users)  — manage customer accounts
+  - Categories        — manage product categories
+  - Products          — manage product listings
+  - Orders            — view customer orders
+
+====================================================================
+2. HOW TO ADD PRODUCTS (ADMIN)
+====================================================================
+
+Navigate to: Admin > Products > Add Product
+
+Fields:
+  - Name          : Product title (e.g. "Classic Cotton T-Shirt")
+  - Slug          : Auto-filled from name (URL-friendly version)
+  - Category      : Select from dropdown (T-Shirts, Trousers, etc.)
+  - Price         : Price in USD (e.g. 19.99)
+  - Stock         : Number of items in inventory
+  - Image         : Upload product image (optional)
+  - Description   : Product details (optional)
+  - Featured      : Check to show on homepage "Featured Products"
+  - Available     : Uncheck to hide from store (sold out / discontinued)
+
+Tip: You can also edit multiple products at once from the product list
+page — click checkboxes and use "Action" dropdown.
+
+====================================================================
+3. HOW TO TRACK ORDERS / SALES (ADMIN)
+====================================================================
+
+Navigate to: Admin > Orders
+
+You will see:
+  - Order ID       : Auto-generated order number
+  - Full Name      : Customer's name
+  - Email          : Customer's email
+  - City           : Shipping city
+  - Total          : Total order amount
+  - Created At     : Date and time of order
+
+Click an order to see:
+  - Customer details (name, email, phone, address, city)
+  - Items purchased (product name, price, quantity, subtotal)
+
+NOTE: There is no "track sales" report yet. You can see orders but
+there is no sales dashboard, charts, or revenue reports. That would
+need to be built as a new feature.
+
+====================================================================
+4. PROJECT STRUCTURE — WHAT DATA EACH APP STORES
+====================================================================
+
+ecommerce/          — Project settings & main URL routing
+├── settings.py     — Database, static files, installed apps
+├── urls.py         — Master URL list connecting all apps
+
+core/               — Home page & cart logic (session-based)
+├── views.py        — home(), cart_add(), cart_remove(), cart_update()
+├── cart.py         — Cart functions (add, remove, update, clear)
+├── context_processors.py  — Makes cart count available in all templates
+├── urls.py         — Home and cart URLs (/cart/, /cart/add/, etc.)
+├── management/
+│   └── commands/
+│       └── seed_data.py   — Populates database with sample products
+
+accounts/           — User authentication
+├── views.py        — register_view(), login_view(), logout_view(), profile_view()
+├── forms.py        — UserRegistrationForm
+├── urls.py         — /register/, /login/, /logout/, /profile/
+├── admin.py        — User management in admin panel
+
+products/           — Product catalog
+├── models.py       — Product model (name, slug, image, price, stock, etc.)
+├── views.py        — ProductListView, ProductDetailView
+├── urls.py         — /products/, /products/<slug>/
+├── admin.py        — Product admin with image preview & filters
+├── templates/products/
+│   ├── product_list.html    — All products grid page
+│   └── product_detail.html  — Single product detail page
+
+categories/         — Category management
+├── models.py       — Category model (name, slug, image, description)
+├── views.py        — CategoryListView, CategoryDetailView
+├── urls.py         — /categories/, /categories/<slug>/
+├── admin.py        — Category admin with product count
+├── templates/categories/
+│   ├── category_list.html    — All categories grid
+│   └── category_detail.html  — Single category + products
+
+orders/             — Checkout & order tracking
+├── models.py       — Order model, OrderItem model
+├── views.py        — checkout_view(), order_summary_view()
+├── forms.py        — CheckoutForm (name, email, phone, address, city)
+├── urls.py         — /orders/checkout/, /orders/summary/<id>/
+├── admin.py        — Order admin with inline items
+├── templates/orders/
+│   ├── checkout.html         — Checkout form page
+│   └── order_summary.html    — Order confirmation page
+
+templates/          — All HTML templates
+├── base.html               — Main layout (head, nav, messages, footer)
+├── includes/
+│   └── product_card.html   — Reusable product card (used everywhere)
+├── partials/
+│   ├── header.html         — Navbar (brand, links, cart, auth)
+│   └── footer.html         — Footer (links, social, copyright)
+├── pages/
+│   └── home.html           — Homepage (hero, categories, featured, latest)
+├── cart/
+│   └── cart_detail.html    — Shopping cart page
+
+static/             — Static files
+├── css/style.css   — Custom styles (hero, cards, footer, animations)
+└── js/main.js      — Custom JavaScript
+
+media/              — Uploaded images (products, categories)
+
+====================================================================
+5. HOW TO EDIT THE HOME PAGE
+====================================================================
+
+File to change:  templates/pages/home.html
+
+Sections (top to bottom):
+  Line 8-30    : Hero banner  — change headline, text, button colors
+  Line 33-66   : Categories   — shows up to 6 categories
+  Line 68-122  : Featured Products — shows products with featured=True
+  Line 124-176 : Latest Products   — shows 8 most recent products
+
+To change hero text:
+  Open templates/pages/home.html
+  Find: "Discover Your <span class="text-primary">Perfect Style</span>"
+  Replace with your new text.
+
+To change how many products show:
+  Open core/views.py
+  Find: home() function
+  Change [:8] to a different number (e.g. [:12] for 12 products)
+
+To change category grid size (6 per row / 3 per row):
+  Open templates/pages/home.html
+  Find: class="col-6 col-md-4 col-lg-2"
+  Change col-lg-2 to col-lg-4 for 3 per row, or col-lg-3 for 4 per row
+
+====================================================================
+6. HOW TO EDIT THE PRODUCTS PAGE
+====================================================================
+
+File to change:  templates/products/product_list.html
+
+This page shows all available products in a grid.
+
+To change the grid layout (3 vs 4 products per row):
+  Open templates/includes/product_card.html
+  Find: class="col-sm-6 col-md-4 col-lg-3"
+  Change col-lg-3 to col-lg-4 for 3 per row
+
+To change what shows on each product card:
+  Open templates/includes/product_card.html
+  This partial is used by home, products, and category pages.
+
+To change the product query (e.g. sorting):
+  Open products/views.py → ProductListView → get_queryset()
+  Add .order_by('price') for cheapest first, or '-price' for most expensive.
+
+====================================================================
+7. HOW TO EDIT A PRODUCT DETAIL PAGE
+====================================================================
+
+File to change:  templates/products/product_detail.html
+
+This shows: breadcrumb, product image, name, category, price,
+description, stock badge, featured badge, add-to-cart form.
+
+To change the layout:
+  - Image column: change col-md-5 to col-md-6 or col-md-4
+  - Info column:  change col-md-7 to match (must add up to 12)
+  - Breadcrumb: edit the <nav> section at the top
+
+====================================================================
+8. HOW TO EDIT THE NAVBAR / FOOTER
+====================================================================
+
+Navbar:  templates/partials/header.html
+  - Brand name "M Shop"
+  - Nav links: Home, Products, Categories
+  - Cart icon with count badge
+  - Login / Register buttons (or user dropdown when logged in)
+
+Footer:  templates/partials/footer.html
+  - Brand description
+  - Social media links (edit href="#")
+  - Quick links
+  - Contact info
+  - Newsletter form
+  - Copyright line "Created by Mubashir"
+
+====================================================================
+9. HOW TO ADD NEW PAGES
+====================================================================
+
+Example — Add an "About Us" page:
+
+Step 1: Create a view
+  Open core/views.py → add:
+    def about(request):
+        return render(request, 'pages/about.html')
+
+Step 2: Create a URL
+  Open core/urls.py → add:
+    path('about/', views.about, name='about'),
+
+Step 3: Create the template
+  Create templates/pages/about.html:
+    {% extends 'base.html' %}
+    {% block title %}About Us - M Shop{% endblock %}
+    {% block content %}
+    <h1>About Us</h1>
+    <p>Your content here.</p>
+    {% endblock %}
+
+Step 4: Add link in navbar
+  Open templates/partials/header.html
+  Add inside the <ul>:
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'about' %}">About</a>
+    </li>
+
+====================================================================
+10. COMMON FILE LOCATIONS QUICK REFERENCE
+====================================================================
+
+WHAT YOU WANT TO CHANGE                FILE LOCATION
+────────────────────────────────────────────────────────────────────
+Homepage content                       templates/pages/home.html
+Product grid                           templates/products/product_list.html
+Product detail page                    templates/products/product_detail.html
+Product card design                    templates/includes/product_card.html
+Category list                          templates/categories/category_list.html
+Category detail                        templates/categories/category_detail.html
+Cart page                              templates/cart/cart_detail.html
+Checkout page                          templates/orders/checkout.html
+Order confirmation                     templates/orders/order_summary.html
+Login page                             templates/accounts/login.html
+Register page                          templates/accounts/register.html
+Profile page                           templates/accounts/profile.html
+Navbar                                 templates/partials/header.html
+Footer                                 templates/partials/footer.html
+Base layout (head, scripts)            templates/base.html
+Custom CSS                             static/css/style.css
+Custom JavaScript                      static/js/main.js
+Product model fields                   products/models.py
+Category model fields                  categories/models.py
+Order model fields                     orders/models.py
+Homepage data (featured, latest)       core/views.py → home()
+Product queries (sort, filter)         products/views.py
+Admin product config                   products/admin.py
+Admin category config                  categories/admin.py
+Admin order config                     orders/admin.py
+Admin user config                      accounts/admin.py
+Cart logic                             core/cart.py
+Seed data                              core/management/commands/seed_data.py
+Settings (DB, static, apps)            ecommerce/settings.py
+Master URLs                            ecommerce/urls.py
+Environment variables                  .env
+
+====================================================================
+                           END OF GUIDE
+====================================================================

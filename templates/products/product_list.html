@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Products - M Shop{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Products</h1>
+    <div class="row g-4">
+        {% for product in products %}
+            {% include 'includes/product_card.html' with show_actions_overlay=False show_description=True %}
+        {% empty %}
+            <div class="col-12">
+                <p class="text-muted">No products available yet.</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
