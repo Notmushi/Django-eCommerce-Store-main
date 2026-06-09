@@ -29,4 +29,6 @@ class OrderItem(models.Model):
         return f'{self.product_name} x {self.quantity}'
 
     def subtotal(self):
-        return self.price * self.quantity
+        if self.price is not None and self.quantity is not None:
+            return self.price * self.quantity
+        return 0
